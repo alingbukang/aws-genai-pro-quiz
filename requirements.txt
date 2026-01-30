@@ -1,0 +1,6 @@
+# Core dependencies for AI-powered question generation
+openai>=1.0.0              # OpenAI/Azure OpenAI SDK
+python-dotenv>=1.0.0       # For loading .env credentials
+
+# Optional: For enhanced functionality
+# requests>=2.31.0         # For HTTP requests
