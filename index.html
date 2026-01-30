@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS GenAI Pro Quiz</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 10px; color: #ff9900; }
+    .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+    
+    /* Start screen */
+    .start-screen { text-align: center; padding: 60px 20px; }
+    .start-screen h2 { margin-bottom: 20px; }
+    .config { margin: 30px 0; }
+    .config label { display: block; margin-bottom: 8px; color: #aaa; }
+    .config select, .config input { padding: 12px; font-size: 16px; border: 1px solid #333; border-radius: 8px; background: #1a1a1a; color: #fff; width: 200px; }
+    
+    /* Quiz */
+    .progress { background: #1a1a1a; border-radius: 10px; height: 8px; margin-bottom: 20px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #ff9900, #ffb84d); transition: width 0.3s; }
+    .stats { display: flex; justify-content: space-between; margin-bottom: 20px; color: #888; font-size: 14px; }
+    
+    .question-card { background: #1a1a1a; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .question-num { color: #ff9900; font-size: 14px; margin-bottom: 10px; }
+    .question-text { font-size: 18px; line-height: 1.6; margin-bottom: 24px; }
+    .topic { display: inline-block; background: #252525; padding: 4px 10px; border-radius: 4px; font-size: 12px; color: #888; margin-bottom: 16px; }
+    
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    .option { padding: 16px; background: #252525; border: 2px solid #333; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px; }
+    .option:hover:not(.disabled) { border-color: #ff9900; background: #2a2a2a; }
+    .option.selected { border-color: #ff9900; background: #2a2218; }
+    .option.correct { border-color: #22c55e; background: #162016; }
+    .option.incorrect { border-color: #ef4444; background: #201616; }
+    .option.disabled { cursor: default; opacity: 0.7; }
+    .option-letter { font-weight: bold; color: #ff9900; min-width: 24px; }
+    .option-text { flex: 1; line-height: 1.5; }
+    
+    .explanation { background: #162016; border-left: 4px solid #22c55e; padding: 16px; border-radius: 0 8px 8px 0; margin-top: 20px; display: none; }
+    .explanation.show { display: block; }
+    .explanation h4 { color: #22c55e; margin-bottom: 8px; }
+    .explanation p { line-height: 1.6; color: #ccc; }
+    
+    .btn { padding: 14px 28px; font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #ff9900; color: #000; }
+    .btn-primary:hover { background: #ffb84d; }
+    .btn-secondary { background: #333; color: #fff; }
+    .btn-secondary:hover { background: #444; }
+    .actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+    
+    /* Results */
+    .results { text-align: center; padding: 40px 20px; }
+    .score-circle { width: 150px; height: 150px; border-radius: 50%; background: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 30px; border: 4px solid #ff9900; }
+    .score-num { font-size: 48px; font-weight: bold; color: #ff9900; }
+    .score-label { color: #888; }
+    .result-msg { font-size: 24px; margin-bottom: 10px; }
+    .result-detail { color: #888; margin-bottom: 30px; }
+    
+    .hidden { display: none !important; }
+    @media (max-width: 600px) { .question-text { font-size: 16px; } .option { padding: 12px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 AWS GenAI Pro Quiz</h1>
+    <p class="subtitle">ML Engineer / Solutions Architect Professional</p>
+    
+    <!-- Start Screen -->
+    <div id="start" class="start-screen">
+      <h2>Test Your Knowledge</h2>
+      <p style="color:#888; margin-bottom:20px;">100 AI-verified questions covering Bedrock, SageMaker & more</p>
+      <div class="config">
+        <label for="numQ">Number of Questions</label>
+        <select id="numQ">
+          <option value="10">10 Questions</option>
+          <option value="20">20 Questions</option>
+          <option value="25" selected>25 Questions</option>
+          <option value="50">50 Questions</option>
+          <option value="100">All 100</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+    </div>
+    
+    <!-- Quiz Screen -->
+    <div id="quiz" class="hidden">
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="stats">
+        <span id="questionCount">Question 1 of 10</span>
+        <span id="scoreCount">Score: 0</span>
+      </div>
+      <div class="question-card">
+        <div class="topic" id="topic"></div>
+        <div class="question-num" id="qNum"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="options"></div>
+        <div class="explanation" id="explanation">
+          <h4>📖 Explanation</h4>
+          <p id="explanationText"></p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary hidden" id="nextBtn" onclick="nextQuestion()">Next Question</button>
+      </div>
+    </div>
+    
+    <!-- Results Screen -->
+    <div id="results" class="results hidden">
+      <div class="score-circle">
+        <div class="score-num" id="finalScore">0%</div>
+        <div class="score-label">Score</div>
+      </div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="result-detail" id="resultDetail"></div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="location.reload()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let questions = [], current = 0, score = 0, selected = [], answered = false;
+
+    async function loadQuestions() {
+      try {
+        const res = await fetch('aws_genai_pro_100.json');
+        const data = await res.json();
+        questions = data.questions || [];
+      } catch (e) {
+        alert('Failed to load questions. Make sure aws_genai_pro_100.json is in the same folder.');
+      }
+    }
+
+    function startQuiz() {
+      const num = parseInt(document.getElementById('numQ').value);
+      const shuffled = [...questions].sort(() => Math.random() - 0.5);
+      selected = shuffled.slice(0, num);
+      current = 0; score = 0; answered = false;
+      document.getElementById('start').classList.add('hidden');
+      document.getElementById('quiz').classList.remove('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = selected[current];
+      answered = false;
+      document.getElementById('progressBar').style.width = `${((current) / selected.length) * 100}%`;
+      document.getElementById('questionCount').textContent = `Question ${current + 1} of ${selected.length}`;
+      document.getElementById('scoreCount').textContent = `Score: ${score}`;
+      document.getElementById('topic').textContent = q.topic || q.category || '';
+      document.getElementById('qNum').textContent = `Question ${current + 1}`;
+      document.getElementById('questionText').textContent = q.question;
+      
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      Object.entries(q.options).forEach(([letter, text]) => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.innerHTML = `<span class="option-letter">${letter}</span><span class="option-text">${text}</span>`;
+        div.onclick = () => selectAnswer(letter, div);
+        optionsDiv.appendChild(div);
+      });
+      
+      document.getElementById('explanation').classList.remove('show');
+      document.getElementById('nextBtn').classList.add('hidden');
+    }
+
+    function selectAnswer(letter, el) {
+      if (answered) return;
+      answered = true;
+      const q = selected[current];
+      const correct = q.correct_answer;
+      
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.add('disabled');
+        const l = opt.querySelector('.option-letter').textContent;
+        if (l === correct) opt.classList.add('correct');
+      });
+      
+      if (letter === correct) {
+        score++;
+        el.classList.add('correct');
+      } else {
+        el.classList.add('incorrect');
+      }
+      
+      document.getElementById('scoreCount').textContent = `Score: ${score}`;
+      document.getElementById('explanationText').textContent = q.explanation;
+      document.getElementById('explanation').classList.add('show');
+      document.getElementById('nextBtn').classList.remove('hidden');
+      document.getElementById('nextBtn').textContent = current < selected.length - 1 ? 'Next Question' : 'See Results';
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current < selected.length) {
+        showQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quiz').classList.add('hidden');
+      document.getElementById('results').classList.remove('hidden');
+      const pct = Math.round((score / selected.length) * 100);
+      document.getElementById('finalScore').textContent = `${pct}%`;
+      document.getElementById('resultDetail').textContent = `You got ${score} out of ${selected.length} questions correct.`;
+      
+      let msg = '';
+      if (pct >= 90) msg = '🏆 Outstanding! You\'re exam ready!';
+      else if (pct >= 75) msg = '🌟 Great job! Almost there!';
+      else if (pct >= 60) msg = '👍 Good effort! Keep practicing.';
+      else msg = '📚 Keep studying! Review the topics.';
+      document.getElementById('resultMsg').textContent = msg;
+      document.getElementById('progressBar').style.width = '100%';
+    }
+
+    loadQuestions();
+  </script>
+</body>
+</html>
