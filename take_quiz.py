@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AWS GenAI Pro Quiz - Practice for certification exams."""
+"""AWS GenAI Pro Quiz - Practice for AWS GenAI Pro certification."""
 
 import json
 import random
@@ -44,7 +44,7 @@ def run_quiz(quiz_file: str, num_questions: int = 10):
     print(f"\n{'='*70}\n📊 SCORE: {score}/{len(selected)} ({pct:.0f}%)\n{'='*70}\n")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="AWS GenAI Pro certification quiz")
+    parser = argparse.ArgumentParser(description="AWS GenAI Pro certification practice quiz")
     parser.add_argument('-q', '--quiz-file', default='aws_genai_pro_100.json')
     parser.add_argument('-n', '--num-questions', type=int, default=10)
     args = parser.parse_args()

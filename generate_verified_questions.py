@@ -6,7 +6,7 @@ Generates high-quality AWS certification practice questions with:
 - Dual-model verification (generator + critic)
 - AWS documentation citations
 - Quality scoring and filtering
-- Pro-level (ML Engineer / Solutions Architect) difficulty
+- AWS GenAI Pro certification level difficulty
 
 Usage:
     python generate_verified_questions.py -n 100 -o aws_genai_pro.json
@@ -265,7 +265,7 @@ class VerifiedQuizGenerator:
         difficulty = topic_info["difficulty"]
         doc_url = self._get_doc_url(category, topic_info.get("doc_ref", ""))
         
-        prompt = f"""Generate ONE AWS ML Engineer Associate / Solutions Architect Professional level exam question.
+        prompt = f"""Generate ONE AWS GenAI Pro certification level exam question.
 
 TOPIC: {topic}
 DIFFICULTY: {difficulty.upper()}

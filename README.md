@@ -8,6 +8,15 @@ Practice for AWS GenAI Pro certification with AI-verified questions.
 
 ## Quick Start
 
+### Web (Recommended)
+```bash
+# Start local server
+python -m http.server 8000
+
+# Open http://localhost:8000 in your browser
+```
+
+### CLI
 ```bash
 # Take a 10-question quiz
 python take_quiz.py
@@ -40,7 +49,7 @@ python take_quiz.py -n 25
 
 4. **Access your quiz**
    ```
-   https://YOUR_USERNAME.github.io/aws-genai-quiz/
+   https://alingbukang.github.io/aws-genai-pro-quiz/
    ```
 
 ## Generate New Questions
