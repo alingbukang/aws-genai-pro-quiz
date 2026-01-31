@@ -4,7 +4,7 @@ Practice for AWS GenAI Pro certification with AI-verified questions.
 
 ## 🌐 Live Demo
 
-**Try it now:** [https://YOUR_USERNAME.github.io/aws-genai-quiz/](https://YOUR_USERNAME.github.io/aws-genai-quiz/)
+**Try it now:** [https://alingbukang.github.io/aws-genai-pro-quiz/](https://alingbukang.github.io/aws-genai-pro-quiz/)
 
 ## Quick Start
 
@@ -49,7 +49,7 @@ python take_quiz.py -n 25
 
 4. **Access your quiz**
    ```
-   https://alingbukang.github.io/aws-genai-pro-quiz/
+   https://YOUR_USERNAM.github.io/aws-genai-pro-quiz/
    ```
 
 ## Generate New Questions
