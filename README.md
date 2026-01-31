@@ -29,7 +29,7 @@ python take_quiz.py -n 25
 
 1. **Fork or clone this repo**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/aws-genai-quiz.git
+   git clone https://github.com/YOUR_USERNAME/aws-genai-pro-quiz.git
    cd aws-genai-quiz
    ```
 
@@ -49,7 +49,7 @@ python take_quiz.py -n 25
 
 4. **Access your quiz**
    ```
-   https://YOUR_USERNAM.github.io/aws-genai-pro-quiz/
+   https://YOUR_USERNAME.github.io/aws-genai-pro-quiz/
    ```
 
 ## Generate New Questions
