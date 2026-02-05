@@ -54,7 +54,7 @@ python take_quiz.py -n 25
 
 ## Generate New Questions
 
-Requires Azure OpenAI API access (~$10 per 100 questions).
+Requires AI API access. See `.env.example` for supported providers.
 
 ```bash
 # Setup
@@ -68,6 +68,21 @@ python generate_verified_questions.py -n 100 -o my_questions.json
 python take_quiz.py -q my_questions.json
 ```
 
+### Approximate Cost (Azure OpenAI GPT-4o Example)
+
+| Item | Tokens | Rate | Cost |
+|------|--------|------|------|
+| Generator prompts (input) | ~2,000 per question | $2.50/1M tokens | $0.005 |
+| Generator responses (output) | ~500 per question | $10.00/1M tokens | $0.005 |
+| Critic prompts (input) | ~2,500 per question | $2.50/1M tokens | $0.006 |
+| Critic responses (output) | ~300 per question | $10.00/1M tokens | $0.003 |
+| **Per question total** | | | **~$0.02** |
+| **100 questions** | | | **~$2.00** |
+| **With retries (~30%)** | | | **~$2.50-3.00** |
+
+> **Note:** Actual costs vary based on question complexity and retry rates.
+
+
 ## Files
 
 | File | Description |
@@ -75,7 +90,7 @@ python take_quiz.py -q my_questions.json
 | `index.html` | Web quiz (GitHub Pages) |
 | `take_quiz.py` | CLI quiz runner |
 | `generate_verified_questions.py` | Generate questions with AI critic |
-| `aws_genai_pro_100.json` | 100 pre-generated verified questions |
+| `aws_genai_pro.json` | 100 pre-generated verified questions |
 
 ## Requirements
 

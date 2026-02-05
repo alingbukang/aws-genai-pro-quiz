@@ -125,11 +125,11 @@
 
     async function loadQuestions() {
       try {
-        const res = await fetch('aws_genai_pro_100.json');
+        const res = await fetch('aws_genai_pro.json');
         const data = await res.json();
         questions = data.questions || [];
       } catch (e) {
-        alert('Failed to load questions. Make sure aws_genai_pro_100.json is in the same folder.');
+        alert('Failed to load questions. Make sure aws_genai_pro.json is in the same folder.');
       }
     }
 

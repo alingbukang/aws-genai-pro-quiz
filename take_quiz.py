@@ -45,7 +45,7 @@ def run_quiz(quiz_file: str, num_questions: int = 10):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AWS GenAI Pro certification practice quiz")
-    parser.add_argument('-q', '--quiz-file', default='aws_genai_pro_100.json')
+    parser.add_argument('-q', '--quiz-file', default='aws_genai_pro.json')
     parser.add_argument('-n', '--num-questions', type=int, default=10)
     args = parser.parse_args()
     

@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 try:
     from openai import AzureOpenAI
 except ImportError:
-    print("❌ Required package missing. Run: pip install openai python-dotenv")
+    print("[ERROR] Required package missing. Run: pip install openai python-dotenv")
     exit(1)
 
 
@@ -65,6 +65,16 @@ AWS_DOCS = {
         "comprehend": "https://docs.aws.amazon.com/comprehend/latest/dg/",
         "rekognition": "https://docs.aws.amazon.com/rekognition/latest/dg/",
         "transcribe": "https://docs.aws.amazon.com/transcribe/latest/dg/",
+    },
+    "opensearch": {
+        "base": "https://docs.aws.amazon.com/opensearch-service/latest/developerguide/",
+        "pages": {
+            "serverless": "serverless.html",
+            "knn": "knn.html",
+            "vector-search": "knn-vector-search.html",
+            "security": "security.html",
+            "scaling": "sizing.html",
+        }
     },
 }
 
@@ -138,6 +148,72 @@ AWS_FACTS = {
         "gdpr": "Requires data processing agreements, data residency, encryption, audit trails",
         "hipaa": "Bedrock is HIPAA eligible, requires BAA with AWS",
     },
+    "opensearch": {
+        "serverless": {
+            "vector_dimensions_max": 16000,
+            "ocus_min": 2,
+            "supported_engines": ["FAISS", "nmslib"],
+            "aoss_types": ["Search", "Time series", "Vector search"],
+        },
+        "knn": {
+            "algorithms": ["HNSW", "IVF", "Flat"],
+            "distance_types": ["l2", "cosinesimil", "innerproduct"],
+            "max_dimensions": 16000,
+        },
+        "integration": {
+            "bedrock_kb_supported": True,
+            "embedding_models": ["Titan Embeddings", "Cohere Embed"],
+        },
+    },
+    "rag": {
+        "components": ["Embedding", "Vector Store", "Retriever", "Generator"],
+        "retrieval_methods": ["Dense", "Sparse", "Hybrid"],
+        "reranking": ["Cross-encoder", "Cohere Rerank"],
+        "evaluation_metrics": ["Faithfulness", "Answer relevancy", "Context precision"],
+    },
+    "chunking": {
+        "strategies": ["Fixed size", "Semantic", "Hierarchical", "No chunking", "Default"],
+        "fixed_size": {
+            "default_chunk_size": 300,
+            "max_chunk_size": 8192,
+            "overlap_percentage_typical": "10-20%",
+        },
+        "semantic": {
+            "breakpoint_threshold_types": ["percentile", "standard_deviation", "interquartile"],
+            "buffer_size_range": "1-3 sentences",
+        },
+        "hierarchical": {
+            "parent_chunk_sizes": [1500, 2000],
+            "child_chunk_sizes": [300, 500],
+            "overlap_tokens": 60,
+        },
+    },
+    "token_costs": {
+        "pricing_factors": ["Input tokens", "Output tokens", "Model tier"],
+        "optimization_techniques": ["Prompt caching", "Batch inference", "Model tiering", "Context pruning"],
+        "prompt_caching": {
+            "min_cacheable_tokens": 1024,
+            "cache_ttl_minutes": 5,
+            "discount_cached_tokens": "Up to 90%",
+        },
+        "batch_inference": {
+            "discount_vs_realtime": "Up to 50%",
+            "max_wait_time_hours": 24,
+        },
+    },
+    "retrieval": {
+        "methods": {
+            "dense": "Semantic similarity using embeddings",
+            "sparse": "Keyword matching (BM25)",
+            "hybrid": "Combination with fusion scoring",
+        },
+        "parameters": {
+            "top_k_typical": "3-10 chunks",
+            "score_threshold_range": "0.0-1.0",
+            "mmr_lambda": "0.0 (diversity) to 1.0 (relevance)",
+        },
+        "reranking_models": ["Cohere Rerank", "Cross-encoder"],
+    },
 }
 
 
@@ -177,6 +253,32 @@ TOPICS = {
         {"topic": "Model lifecycle - deprecation and migration", "difficulty": "hard", "doc_ref": "models"},
         {"topic": "CloudWatch metrics - InvocationLatency monitoring", "difficulty": "medium", "doc_ref": "quotas"},
         {"topic": "Throttling and quota management strategies", "difficulty": "medium", "doc_ref": "quotas"},
+        # RAG with Bedrock topics
+        {"topic": "RAG pipeline orchestration with Bedrock Agents - action groups and knowledge bases", "difficulty": "hard", "doc_ref": "agents"},
+        {"topic": "Embedding model selection - Titan Embeddings V2 vs Cohere Embed dimensions and performance", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "RAG evaluation using Bedrock model evaluation jobs - RAGAS metrics", "difficulty": "hard", "doc_ref": "models"},
+        {"topic": "Context window optimization for RAG responses - chunking and token management", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Parent-child chunking for hierarchical RAG - document structure preservation", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Knowledge Base data ingestion pipelines - S3 sync vs real-time updates", "difficulty": "medium", "doc_ref": "knowledge-bases"},
+        {"topic": "RAG with Guardrails contextual grounding - response validation", "difficulty": "hard", "doc_ref": "guardrails"},
+        # Chunking strategies
+        {"topic": "Chunking strategies comparison - fixed size vs semantic vs hierarchical trade-offs", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Semantic chunking configuration - breakpoint threshold and buffer size tuning", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Hierarchical chunking - parent chunk size vs child chunk size optimization", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Chunk overlap strategies - balancing context preservation vs storage costs", "difficulty": "medium", "doc_ref": "knowledge-bases"},
+        {"topic": "Document-specific chunking - PDF tables vs markdown vs code files", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        # Token cost optimization
+        {"topic": "Token cost optimization - prompt compression vs context pruning techniques", "difficulty": "hard", "doc_ref": "inference"},
+        {"topic": "Prompt caching strategies - cache hit optimization for repeated queries", "difficulty": "hard", "doc_ref": "inference"},
+        {"topic": "Model selection for cost - Claude Haiku vs Sonnet vs Opus use case mapping", "difficulty": "hard", "doc_ref": "models"},
+        {"topic": "Batch inference vs real-time - cost breakeven analysis", "difficulty": "hard", "doc_ref": "inference"},
+        {"topic": "Token budgeting - max_tokens vs stop_sequences for cost control", "difficulty": "medium", "doc_ref": "inference"},
+        # Retrieval strategies
+        {"topic": "Retrieval strategies - dense vs sparse vs hybrid search selection criteria", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Top-k vs MMR retrieval - diversity vs relevance trade-offs", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Metadata filtering in retrieval - pre-filter vs post-filter performance", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Multi-query retrieval - query expansion and reformulation strategies", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Retrieval score thresholds - precision vs recall tuning", "difficulty": "medium", "doc_ref": "knowledge-bases"},
     ],
     "sagemaker": [
         {"topic": "SageMaker JumpStart vs Bedrock trade-offs", "difficulty": "hard", "doc_ref": "jumpstart"},
@@ -207,6 +309,20 @@ TOPICS = {
         {"topic": "Security architecture - encryption and VPC isolation", "difficulty": "hard", "doc_ref": "security"},
         {"topic": "Responsible AI - bias testing and human oversight", "difficulty": "hard", "doc_ref": "guardrails"},
         {"topic": "Hybrid Bedrock-SageMaker architectures", "difficulty": "hard", "doc_ref": "models"},
+        # RAG architecture topics
+        {"topic": "RAG query routing - semantic vs keyword classification for retrieval", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "RAG reranking strategies - cross-encoder integration with Bedrock", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Hybrid retrieval architecture - dense + sparse vector fusion scoring", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "RAG hallucination mitigation - guardrails and citation verification", "difficulty": "hard", "doc_ref": "guardrails"},
+        {"topic": "Multi-source RAG aggregation - federated knowledge base patterns", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "RAG latency optimization - caching embeddings and retrieval results", "difficulty": "hard", "doc_ref": "inference"},
+        {"topic": "RAG with streaming responses - progressive answer generation", "difficulty": "medium", "doc_ref": "inference"},
+        # Architecture for chunking, cost, and retrieval
+        {"topic": "Chunking pipeline architecture - Lambda vs Step Functions for document processing", "difficulty": "hard", "doc_ref": "agents"},
+        {"topic": "Token cost architecture - tiered model routing based on query complexity", "difficulty": "hard", "doc_ref": "inference"},
+        {"topic": "Retrieval augmentation architecture - reranker placement in RAG pipeline", "difficulty": "hard", "doc_ref": "knowledge-bases"},
+        {"topic": "Cost monitoring architecture - CloudWatch metrics for token usage tracking", "difficulty": "medium", "doc_ref": "quotas"},
+        {"topic": "Adaptive retrieval architecture - dynamic top-k based on query confidence", "difficulty": "hard", "doc_ref": "knowledge-bases"},
     ],
     "ai-services": [
         {"topic": "Amazon Kendra vs Knowledge Bases comparison", "difficulty": "hard", "doc_ref": "kendra"},
@@ -214,6 +330,18 @@ TOPICS = {
         {"topic": "Amazon Comprehend for NLP preprocessing", "difficulty": "medium", "doc_ref": "comprehend"},
         {"topic": "Amazon Transcribe to LLM pipelines", "difficulty": "medium", "doc_ref": "transcribe"},
         {"topic": "Rekognition vs multi-modal models trade-offs", "difficulty": "medium", "doc_ref": "rekognition"},
+    ],
+    "opensearch": [
+        {"topic": "OpenSearch Serverless vs provisioned domains - when to use each", "difficulty": "hard", "doc_ref": "serverless"},
+        {"topic": "OpenSearch k-NN plugin - HNSW vs IVF algorithm selection", "difficulty": "hard", "doc_ref": "knn"},
+        {"topic": "OpenSearch vector search - similarity metrics selection (L2 vs cosine)", "difficulty": "hard", "doc_ref": "vector-search"},
+        {"topic": "OpenSearch OCU capacity planning for vector workloads", "difficulty": "hard", "doc_ref": "scaling"},
+        {"topic": "OpenSearch Serverless collections - Search vs Vector search types", "difficulty": "medium", "doc_ref": "serverless"},
+        {"topic": "OpenSearch index mapping for hybrid search (BM25 + k-NN)", "difficulty": "hard", "doc_ref": "knn"},
+        {"topic": "OpenSearch Serverless security - encryption and access policies", "difficulty": "medium", "doc_ref": "security"},
+        {"topic": "OpenSearch integration with Bedrock Knowledge Bases", "difficulty": "hard", "doc_ref": "vector-search"},
+        {"topic": "OpenSearch k-NN index tuning - ef_search and ef_construction parameters", "difficulty": "hard", "doc_ref": "knn"},
+        {"topic": "OpenSearch Serverless data access policies vs network policies", "difficulty": "hard", "doc_ref": "security"},
     ],
 }
 
@@ -235,7 +363,7 @@ class VerifiedQuizGenerator:
         self.critic_model = os.getenv('AZURE_CRITIC_MODEL', 'gpt-4o')
         
         if not api_key or not endpoint:
-            print("❌ Missing credentials in .env file")
+            print("[ERROR] Missing credentials in .env file")
             print("   Required: AZURE_OPENAI_KEY, AZURE_OPENAI_ENDPOINT")
             print("   Optional: AZURE_GENERATOR_MODEL, AZURE_CRITIC_MODEL")
             exit(1)
@@ -251,7 +379,7 @@ class VerifiedQuizGenerator:
     
     def _get_doc_url(self, category: str, doc_ref: str) -> str:
         """Get documentation URL for citation."""
-        if category in ["bedrock", "sagemaker"]:
+        if category in ["bedrock", "sagemaker", "opensearch"]:
             base = AWS_DOCS[category]["base"]
             page = AWS_DOCS[category]["pages"].get(doc_ref, "")
             return f"{base}{page}"
@@ -265,27 +393,42 @@ class VerifiedQuizGenerator:
         difficulty = topic_info["difficulty"]
         doc_url = self._get_doc_url(category, topic_info.get("doc_ref", ""))
         
-        prompt = f"""Generate ONE AWS GenAI Pro certification level exam question.
+        prompt = f"""Generate ONE AWS Professional-level certification exam question.
 
 TOPIC: {topic}
-DIFFICULTY: {difficulty.upper()}
+DIFFICULTY: {difficulty.upper()} (AWS Pro-level)
 CATEGORY: {category}
 
 REQUIREMENTS:
 1. Complex scenario with specific company context and constraints
-2. Multiple competing requirements (cost vs performance vs security)
-3. Technical depth: API names, limits, pricing implications
-4. All 4 options must be plausible
+2. Multiple competing requirements (cost vs performance vs security vs compliance)
+3. Technical depth: API names, exact limits, specific parameters, pricing implications
+4. Create 2 options (distractors) that are VERY SIMILAR to the correct answer:
+   - They should differ only by subtle technical details (e.g., wrong parameter value, slightly incorrect service configuration)
+   - Both should sound equally plausible to someone who hasn't studied deeply
+   - The difference should require precise AWS knowledge to distinguish
+5. All 4 options must be technically plausible - NO obviously wrong answers
+6. Options must NOT give hints:
+   - Avoid absolute words like "always", "never", "only", "all", "none"
+   - All options should be similar length and technical depth
+   - Do not use negative phrasing that signals wrong answers
+7. Distractor options should use REAL AWS features but applied incorrectly or in wrong contexts
+8. The correct answer should be distinguishable only through deep technical understanding
 
 FORMAT:
-"A [industry] company needs to [requirement] with [constraints]. Which solution BEST meets these requirements?"
+"A [industry] company needs to [requirement] with [constraints]. They must also [additional requirement]. Which solution BEST meets these requirements?"
+
+DISTRACTOR EXAMPLES (how to make options similar):
+- Correct: "Use OpenSearch Serverless with HNSW algorithm and cosinesimil distance"
+- Similar wrong: "Use OpenSearch Serverless with IVF algorithm and cosinesimil distance" (wrong algorithm for the use case)
+- Similar wrong: "Use OpenSearch Serverless with HNSW algorithm and l2 distance" (wrong distance metric)
 
 OUTPUT as JSON only:
 {{
-  "question": "150-250 word scenario...",
-  "options": {{"A": "...", "B": "...", "C": "...", "D": "..."}},
+  "question": "150-250 word scenario with specific technical constraints...",
+  "options": {{"A": "Detailed technical solution...", "B": "Similar but subtly wrong...", "C": "Another plausible option...", "D": "Fourth plausible option..."}},
   "correct_answer": "A",
-  "explanation": "Option A is correct because... Option B fails because...",
+  "explanation": "Option A is correct because [specific technical reason]. Option B fails because [subtle technical difference]. Option C fails because [specific reason]. Option D fails because [specific reason].",
   "topic": "{topic}",
   "difficulty": "{difficulty}",
   "category": "{category}",
@@ -315,7 +458,7 @@ OUTPUT as JSON only:
             return question
             
         except Exception as e:
-            print(f"   ❌ Generation error: {e}")
+            print(f"   [ERROR] Generation error: {e}")
             return None
     
     def _critique_question(self, question: Dict) -> Dict:
@@ -379,19 +522,19 @@ Only REJECT for clear factual errors. Be pragmatic for practice questions."""
     
     def _process_question(self, topic_info: Dict, category: str, num: int, total: int) -> Optional[Dict]:
         """Generate and verify a single question."""
-        print(f"\n[{num}/{total}] 📝 {topic_info['topic'][:50]}...")
+        print(f"\n[{num}/{total}] [GEN] {topic_info['topic'][:50]}...")
         
         question = self._generate_question(topic_info, category)
         if not question:
             return None
         
-        print(f"   ✅ Generated ({topic_info['difficulty']})")
+        print(f"   [OK] Generated ({topic_info['difficulty']})")
         
         if not self.critic_enabled:
             question["verification_status"] = "UNVERIFIED"
             return question
         
-        print(f"   🔍 Verifying...")
+        print(f"   [VERIFY] Verifying...")
         critique = self._critique_question(question)
         question["critique"] = critique
         
@@ -402,20 +545,20 @@ Only REJECT for clear factual errors. Be pragmatic for practice questions."""
         # Decision logic
         if has_errors or alt_correct or score < 4.5:
             reason = critique.get("factual_errors", ["Low score"])[:1]
-            print(f"   ❌ REJECTED ({score:.1f}) - {reason}")
+            print(f"   [REJECTED] ({score:.1f}) - {reason}")
             question["verification_status"] = "REJECTED"
             self.stats["rejected"] += 1
             return None
         elif score >= 6.5:
-            print(f"   ✅ APPROVED ({score:.1f})")
+            print(f"   [APPROVED] ({score:.1f})")
             question["verification_status"] = "APPROVED"
             self.stats["approved"] += 1
         elif score >= 5.5:
-            print(f"   ⚠️ APPROVED with notes ({score:.1f})")
+            print(f"   [APPROVED*] with notes ({score:.1f})")
             question["verification_status"] = "APPROVED_WITH_NOTES"
             self.stats["approved"] += 1
         else:
-            print(f"   ⚠️ NEEDS REVIEW ({score:.1f})")
+            print(f"   [REVIEW] NEEDS REVIEW ({score:.1f})")
             question["verification_status"] = "NEEDS_REVIEW"
             self.stats["needs_review"] += 1
         
@@ -424,28 +567,29 @@ Only REJECT for clear factual errors. Be pragmatic for practice questions."""
     def generate_quiz(self, total: int, output_file: str):
         """Generate verified quiz."""
         print(f"\n{'='*60}")
-        print("🤖 AWS GenAI Pro Question Generator")
+        print("[*] AWS GenAI Pro Question Generator")
         print(f"{'='*60}")
-        print(f"🎯 Target: {total} questions")
-        print(f"📝 Generator: {self.generator_model}")
-        print(f"🔍 Critic: {self.critic_model}")
-        print(f"⏱️ Est. time: {total * 20 // 60}-{total * 30 // 60} min")
+        print(f"[TARGET] {total} questions")
+        print(f"[GENERATOR] {self.generator_model}")
+        print(f"[CRITIC] {self.critic_model}")
+        print(f"[TIME] Est. time: {total * 20 // 60}-{total * 30 // 60} min")
         
-        # Distribution: 60% Bedrock, 20% SageMaker, 10% Architecture, 10% AI Services
+        # Distribution: 45% Bedrock, 15% SageMaker, 15% Architecture, 15% OpenSearch, 10% AI Services
         dist = {
-            "bedrock": int(total * 0.60),
-            "sagemaker": int(total * 0.20),
-            "architecture": int(total * 0.10),
+            "bedrock": int(total * 0.45),
+            "sagemaker": int(total * 0.15),
+            "architecture": int(total * 0.15),
+            "opensearch": int(total * 0.15),
             "ai-services": total - int(total * 0.90),
         }
         
-        print(f"\n📦 Distribution: {dist}")
+        print(f"\n[DIST] Distribution: {dist}")
         
         questions = []
         qid = 1
         
         for category, target in dist.items():
-            print(f"\n{'─'*40}\n📂 {category.upper()}\n{'─'*40}")
+            print(f"\n{'-'*40}\n[CATEGORY] {category.upper()}\n{'-'*40}")
             
             pool = TOPICS.get(category, [])
             if not pool:
@@ -486,17 +630,17 @@ Only REJECT for clear factual errors. Be pragmatic for practice questions."""
         
         # Summary
         print(f"\n{'='*60}")
-        print("📊 COMPLETE")
+        print("[COMPLETE]")
         print(f"{'='*60}")
-        print(f"✅ Questions: {len(questions)}")
+        print(f"[TOTAL] Questions: {len(questions)}")
         print(f"   Approved: {self.stats['approved']}")
         print(f"   Needs Review: {self.stats['needs_review']}")
         print(f"   Rejected: {self.stats['rejected']}")
         if self.stats['generated'] > 0:
             rate = self.stats['approved'] / self.stats['generated'] * 100
-            print(f"📈 Approval rate: {rate:.0f}%")
-        print(f"\n💾 Saved: {output_file}")
-        print(f"📖 Run: python take_quiz.py -q {output_file}")
+            print(f"[RATE] Approval rate: {rate:.0f}%")
+        print(f"\n[SAVED] {output_file}")
+        print(f"[RUN] python take_quiz.py -q {output_file}")
         print(f"{'='*60}\n")
 
 
